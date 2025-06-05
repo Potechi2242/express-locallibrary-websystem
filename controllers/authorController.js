@@ -4,74 +4,74 @@ const Book = require("../models/book");
 const { body, validationResult } = require("express-validator");
 const asyncHandler = require("express-async-handler");
 
-// Display list of all Authors.
+// すべての著者のリストを表示
 exports.author_list = asyncHandler(async (req, res, next) => {
   const allAuthors = await Author.find().sort({ family_name: 1 }).exec();
   res.render("author_list", {
-    title: "Author List",
+    title: "著者一覧",
     author_list: allAuthors,
   });
 });
 
-// Display detail page for a specific Author.
+// 特定の著者の詳細ページを表示
 exports.author_detail = asyncHandler(async (req, res, next) => {
-  // Get details of author and all their books (in parallel)
+  // 著者とその著書を並行して取得
   const [author, allBooksByAuthor] = await Promise.all([
     Author.findById(req.params.id).exec(),
     Book.find({ author: req.params.id }, "title summary").exec(),
   ]);
 
   if (author === null) {
-    // No results.
-    const err = new Error("Author not found");
+    // 結果なし
+    const err = new Error("著者が見つかりません");
     err.status = 404;
     return next(err);
   }
 
   res.render("author_detail", {
-    title: "Author Detail",
+    title: "著者詳細",
     author: author,
     author_books: allBooksByAuthor,
   });
 });
 
-// Display Author create form on GET.
+// 著者作成フォームをGETで表示
 exports.author_create_get = (req, res, next) => {
-  res.render("author_form", { title: "Create Author" });
+  res.render("author_form", { title: "著者の作成" });
 };
 
-// Handle Author create on POST.
+// 著者作成をPOSTで処理
 exports.author_create_post = [
-  // Validate and sanitize fields.
+  // フィールドのバリデーションとサニタイズ
   body("first_name")
     .trim()
     .isLength({ min: 1 })
     .escape()
-    .withMessage("First name must be specified.")
+    .withMessage("名は必須です。")
     .isAlphanumeric()
-    .withMessage("First name has non-alphanumeric characters."),
+    .withMessage("名には英数字のみ使用できます。"),
   body("family_name")
     .trim()
     .isLength({ min: 1 })
     .escape()
-    .withMessage("Family name must be specified.")
+    .withMessage("姓は必須です。")
     .isAlphanumeric()
-    .withMessage("Family name has non-alphanumeric characters."),
-  body("date_of_birth", "Invalid date of birth")
+    .withMessage("姓には英数字のみ使用できます。"),
+  body("date_of_birth", "生年月日が無効です")
     .optional({ values: "falsy" })
     .isISO8601()
     .toDate(),
-  body("date_of_death", "Invalid date of death")
+  body("date_of_death", "没年月日が無効です")
     .optional({ values: "falsy" })
     .isISO8601()
     .toDate(),
 
-  // Process request after validation and sanitization.
+  // バリデーションとサニタイズ後のリクエスト処理
   asyncHandler(async (req, res, next) => {
-    // Extract the validation errors from a request.
+    // バリデーションエラーを抽出
     const errors = validationResult(req);
 
-    // Create Author object with escaped and trimmed data
+    // エスケープ・トリム済みデータで著者オブジェクト作成
     const author = new Author({
       first_name: req.body.first_name,
       family_name: req.body.family_name,
@@ -80,112 +80,112 @@ exports.author_create_post = [
     });
 
     if (!errors.isEmpty()) {
-      // There are errors. Render form again with sanitized values/errors messages.
+      // エラーあり。フォームを再表示
       res.render("author_form", {
-        title: "Create Author",
+        title: "著者の作成",
         author: author,
         errors: errors.array(),
       });
       return;
     } else {
-      // Data from form is valid.
+      // フォームデータは有効
 
-      // Save author.
+      // 著者を保存
       await author.save();
-      // Redirect to new author record.
+      // 新しい著者ページへリダイレクト
       res.redirect(author.url);
     }
   }),
 ];
 
-// Display Author delete form on GET.
+// 著者削除フォームをGETで表示
 exports.author_delete_get = asyncHandler(async (req, res, next) => {
-  // Get details of author and all their books (in parallel)
+  // 著者とその著書を並行して取得
   const [author, allBooksByAuthor] = await Promise.all([
     Author.findById(req.params.id).exec(),
     Book.find({ author: req.params.id }, "title summary").exec(),
   ]);
 
   if (author === null) {
-    // No results.
+    // 結果なし
     res.redirect("/catalog/authors");
   }
 
   res.render("author_delete", {
-    title: "Delete Author",
+    title: "著者の削除",
     author: author,
     author_books: allBooksByAuthor,
   });
 });
 
-// Handle Author delete on POST.
+// 著者削除をPOSTで処理
 exports.author_delete_post = asyncHandler(async (req, res, next) => {
-  // Get details of author and all their books (in parallel)
+  // 著者とその著書を並行して取得
   const [author, allBooksByAuthor] = await Promise.all([
     Author.findById(req.params.id).exec(),
     Book.find({ author: req.params.id }, "title summary").exec(),
   ]);
 
   if (allBooksByAuthor.length > 0) {
-    // Author has books. Render in same way as for GET route.
+    // 著者に著書がある場合、GETと同様に表示
     res.render("author_delete", {
-      title: "Delete Author",
+      title: "著者の削除",
       author: author,
       author_books: allBooksByAuthor,
     });
     return;
   } else {
-    // Author has no books. Delete object and redirect to the list of authors.
+    // 著者に著書がなければ削除し、著者一覧へリダイレクト
     await Author.findByIdAndDelete(req.body.authorid);
     res.redirect("/catalog/authors");
   }
 });
 
-// Display Author update form on GET.
+// 著者更新フォームをGETで表示
 exports.author_update_get = asyncHandler(async (req, res, next) => {
   const author = await Author.findById(req.params.id).exec();
   if (author === null) {
-    // No results.
-    const err = new Error("Author not found");
+    // 結果なし
+    const err = new Error("著者が見つかりません");
     err.status = 404;
     return next(err);
   }
 
-  res.render("author_form", { title: "Update Author", author: author });
+  res.render("author_form", { title: "著者の更新", author: author });
 });
 
-// Handle Author update on POST.
+// 著者更新をPOSTで処理
 exports.author_update_post = [
-  // Validate and sanitize fields.
+  // フィールドのバリデーションとサニタイズ
   body("first_name")
     .trim()
     .isLength({ min: 1 })
     .escape()
-    .withMessage("First name must be specified.")
+    .withMessage("名は必須です。")
     .isAlphanumeric()
-    .withMessage("First name has non-alphanumeric characters."),
+    .withMessage("名には英数字のみ使用できます。"),
   body("family_name")
     .trim()
     .isLength({ min: 1 })
     .escape()
-    .withMessage("Family name must be specified.")
+    .withMessage("姓は必須です。")
     .isAlphanumeric()
-    .withMessage("Family name has non-alphanumeric characters."),
-  body("date_of_birth", "Invalid date of birth")
+    .withMessage("姓には英数字のみ使用できます。"),
+  body("date_of_birth", "生年月日が無効です")
     .optional({ values: "falsy" })
     .isISO8601()
     .toDate(),
-  body("date_of_death", "Invalid date of death")
+  body("date_of_death", "没年月日が無効です")
     .optional({ values: "falsy" })
     .isISO8601()
     .toDate(),
 
-  // Process request after validation and sanitization.
+  // バリデーションとサニタイズ後のリクエスト処理
   asyncHandler(async (req, res, next) => {
-    // Extract the validation errors from a request.
+    // バリデーションエラーを抽出
     const errors = validationResult(req);
 
-    // Create Author object with escaped and trimmed data (and the old id!)
+    // エスケープ・トリム済みデータで著者オブジェクト作成（古いIDも含む）
     const author = new Author({
       first_name: req.body.first_name,
       family_name: req.body.family_name,
@@ -195,15 +195,15 @@ exports.author_update_post = [
     });
 
     if (!errors.isEmpty()) {
-      // There are errors. Render the form again with sanitized values and error messages.
+      // エラーあり。フォームを再表示
       res.render("author_form", {
-        title: "Update Author",
+        title: "著者の更新",
         author: author,
         errors: errors.array(),
       });
       return;
     } else {
-      // Data from form is valid. Update the record.
+      // フォームデータは有効。レコードを更新
       await Author.findByIdAndUpdate(req.params.id, author);
       res.redirect(author.url);
     }
