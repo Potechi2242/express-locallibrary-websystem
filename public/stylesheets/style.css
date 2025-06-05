@@ -3,3 +3,69 @@
   padding: 0;
   list-style: none;
 }
+
+/* 背景にグラデーションを追加 */
+body {
+  background: linear-gradient(135deg, #f8ffae 0%, #43c6ac 100%);
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* メインコンテナを中央に配置し、豪華なボックスシャドウを追加 */
+.container, .main-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 40px 30px;
+  margin: 40px auto;
+  max-width: 800px;
+  transition: box-shadow 0.3s;
+}
+
+.container:hover, .main-content:hover {
+  box-shadow: 0 16px 48px 0 rgba(31, 38, 135, 0.45);
+}
+
+/* タイトルを豪華に */
+h1, h2, h3 {
+  color: #2d3a4b;
+  text-shadow: 2px 2px 8px #b2fefa;
+  letter-spacing: 2px;
+}
+
+/* ボタンを豪華に */
+button, .btn {
+  background: linear-gradient(90deg, #43c6ac 0%, #191654 100%);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 32px;
+  font-size: 1.1em;
+  font-weight: bold;
+  box-shadow: 0 4px 14px rgba(67, 198, 172, 0.3);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+button:hover, .btn:hover {
+  background: linear-gradient(90deg, #191654 0%, #43c6ac 100%);
+  transform: translateY(-3px) scale(1.05);
+}
+
+/* リンクも目立たせる */
+a {
+  color: #191654;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #43c6ac;
+  text-decoration: underline;
+}
+
