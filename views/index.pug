@@ -1,16 +1,24 @@
 extends layout
 
 block content
-  h1= title
-  p ようこそ #[em LocalLibrary] へ。これは Mozilla Developer Network のチュートリアル例として作成された、とても基本的な Express ウェブサイトです。
+  .container.mt-5
+    .row.justify-content-center
+      .col-md-8
+        .card.shadow-lg
+          .card-body
+            h1.card-title.display-4.mb-3.text-primary= title
+            p.card-text.lead.mb-4
+              | ようこそ 
+              em LocalLibrary
+              | へ。これは Mozilla Developer Network のチュートリアル例として作成された、とても基本的な Express ウェブサイトです。
 
-  h1 動的コンテンツ
+            h2.h4.mb-3.text-secondary 動的コンテンツ
 
-  p この図書館には次のレコード数があります:
+            p.mb-2 この図書館には次のレコード数があります:
 
-  ul
-    li #[strong 本の数:] !{book_count}
-    li #[strong 蔵書数:] !{book_instance_count}
-    li #[strong 利用可能な蔵書数:] !{book_instance_available_count}
-    li #[strong 著者数:] !{author_count}
-    li #[strong ジャンル数:] !{genre_count}
+            ul.list-group.list-group-flush.mb-4
+              li.list-group-item #[strong 本の数:] !{book_count}
+              li.list-group-item #[strong 蔵書数:] !{book_instance_count}
+              li.list-group-item #[strong 利用可能な蔵書数:] !{book_instance_available_count}
+              li.list-group-item #[strong 著者数:] !{author_count}
+              li.list-group-item #[strong ジャンル数:] !{genre_count}
